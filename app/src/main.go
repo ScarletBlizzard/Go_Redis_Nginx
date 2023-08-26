@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -73,8 +74,8 @@ func handleDel(w http.ResponseWriter, r *http.Request) {
 func main() {
 	rc = redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
-		Password: "", // No password for simplicity. Must not do this in production
-		DB:       0,  // Default DB
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       0, // Default DB
 	})
 
 	http.HandleFunc("/set_key", handleSet)

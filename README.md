@@ -5,7 +5,8 @@ Install and run:
 ```
 git clone https://github.com/ScarletBlizzard/Go_Redis_Nginx.git
 cd Go_Redis_Nginx
-docker compose up
+echo "REDIS_PASSWORD=<password for redis>" > .env
+docker compose --env-file .env up
 ```
 Set key-value pair:
 ```

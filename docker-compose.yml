@@ -8,6 +8,8 @@ services:
       - 8089
     links:
       - redis
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
   nginx:
     build: ./nginx
     image: go_redis_nginx/nginx
@@ -22,3 +24,5 @@ services:
     container_name: redis
     expose:
       - 6379
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
