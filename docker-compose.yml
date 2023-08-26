@@ -6,6 +6,8 @@ services:
     container_name: app
     expose:
       - 8089
+    links:
+      - redis
   nginx:
     build: ./nginx
     image: go_redis_nginx/nginx
@@ -14,3 +16,9 @@ services:
       - 80:80
     links:
       - app
+  redis:
+    build: ./redis
+    image: go_redis_nginx/redis
+    container_name: redis
+    expose:
+      - 6379

@@ -1,14 +1,18 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/redis/go-redis/v9"
 )
 
-var storage map[string]string = make(map[string]string) // TODO: Remove this
+var ctx context.Context = context.Background()
+var rc *redis.Client
 
 func handleSet(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
@@ -23,14 +27,17 @@ func handleSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for k, v := range m {
-		storage[k] = v
+		err = rc.Set(ctx, k, v, 0).Err()
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
 func handleGet(w http.ResponseWriter, r *http.Request) {
 	key := r.URL.Query().Get("key")
-	val, ok := storage[key]
-	if !ok {
+	val, err := rc.Get(ctx, key).Result()
+	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -57,10 +64,19 @@ func handleDel(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "JSON request must have field 'key'", http.StatusBadRequest)
 		return
 	}
-	delete(storage, *d.Key)
+	err = rc.Del(ctx, *d.Key).Err()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
+	rc = redis.NewClient(&redis.Options{
+		Addr:     "redis:6379",
+		Password: "", // No password for simplicity. Must not do this in production
+		DB:       0,  // Default DB
+	})
+
 	http.HandleFunc("/set_key", handleSet)
 	http.HandleFunc("/get_key", handleGet)
 	http.HandleFunc("/del_key", handleDel)
