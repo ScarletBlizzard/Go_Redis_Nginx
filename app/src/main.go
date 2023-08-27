@@ -30,7 +30,7 @@ func handleSet(w http.ResponseWriter, r *http.Request) {
 	for k, v := range m {
 		err = rc.Set(ctx, k, v, 0).Err()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
@@ -67,7 +67,7 @@ func handleDel(w http.ResponseWriter, r *http.Request) {
 	}
 	err = rc.Del(ctx, *d.Key).Err()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
