@@ -7,4 +7,7 @@ RUN apt-get update && \
     apt-get install -y redis && \
     apt-get clean
 EXPOSE 6379
-CMD redis-server --daemonize no --requirepass $REDIS_PASSWORD
+ENV CONF_PATH /etc/redis/redis.conf
+COPY redis.conf $CONF_PATH
+COPY *.crt redis.key ./
+CMD redis-server $CONF_PATH --daemonize no --requirepass $REDIS_PASSWORD

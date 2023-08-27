@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -72,10 +74,26 @@ func handleDel(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	cert, err := tls.LoadX509KeyPair("app.crt", "app.key")
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCert, err := os.ReadFile("redis.crt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
 	rc = redis.NewClient(&redis.Options{
 		Addr:     "redis:6379",
 		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0, // Default DB
+		TLSConfig: &tls.Config{
+			MinVersion:   tls.VersionTLS12,
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		},
 	})
 
 	http.HandleFunc("/set_key", handleSet)
