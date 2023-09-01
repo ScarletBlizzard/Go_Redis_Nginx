@@ -5,7 +5,8 @@ RUN apt-get update && \
     echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" > /etc/apt/sources.list.d/redis.list && \
     apt-get update && \
     apt-get install -y redis && \
-    apt-get clean
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 EXPOSE 6379
 ENV CONF_PATH /etc/redis/redis.conf
 COPY redis.conf $CONF_PATH
